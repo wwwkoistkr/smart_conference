@@ -28,6 +28,225 @@
       content="회의 대본과 메모를 AI로 정리해 공유 가능한 회의록으로 만드는 웹 서비스입니다."
     />
     <meta name="theme-color" content="#2563EB" />
+    <style>
+      :root {
+        color-scheme: light;
+        font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        background: #f8fafc;
+        color: #172033;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        background: #f8fafc;
+      }
+
+      .fallback-shell {
+        width: min(1180px, calc(100% - 32px));
+        margin: 0 auto;
+        padding: 28px 0 48px;
+      }
+
+      .fallback-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        padding: 12px 0 24px;
+      }
+
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        font-weight: 800;
+      }
+
+      .brand-mark {
+        display: grid;
+        place-items: center;
+        width: 38px;
+        height: 38px;
+        border-radius: 8px;
+        background: #2563eb;
+        color: #fff;
+        font-weight: 900;
+      }
+
+      .status-pill {
+        border: 1px solid #dbe3ef;
+        border-radius: 999px;
+        padding: 8px 12px;
+        color: #475569;
+        font-size: 13px;
+        background: #fff;
+      }
+
+      .workspace {
+        display: grid;
+        grid-template-columns: minmax(0, 1.05fr) minmax(320px, 0.95fr);
+        gap: 18px;
+        align-items: stretch;
+      }
+
+      .panel {
+        border: 1px solid #dbe3ef;
+        border-radius: 8px;
+        background: #fff;
+        box-shadow: 0 10px 28px rgba(15, 23, 42, 0.06);
+      }
+
+      .panel-header {
+        border-bottom: 1px solid #e5edf7;
+        padding: 18px 20px;
+      }
+
+      h1,
+      h2,
+      p {
+        margin: 0;
+      }
+
+      h1 {
+        font-size: clamp(28px, 5vw, 46px);
+        line-height: 1.12;
+        letter-spacing: 0;
+      }
+
+      h2 {
+        font-size: 17px;
+        line-height: 1.35;
+      }
+
+      .lead {
+        margin-top: 10px;
+        color: #526173;
+        line-height: 1.65;
+        max-width: 720px;
+      }
+
+      .form-grid {
+        display: grid;
+        gap: 14px;
+        padding: 20px;
+      }
+
+      label {
+        display: grid;
+        gap: 7px;
+        color: #334155;
+        font-size: 13px;
+        font-weight: 700;
+      }
+
+      input,
+      textarea,
+      select {
+        width: 100%;
+        border: 1px solid #cfd9e8;
+        border-radius: 8px;
+        padding: 12px 13px;
+        font: inherit;
+        color: #172033;
+        background: #f8fafc;
+      }
+
+      textarea {
+        min-height: 210px;
+        resize: vertical;
+        line-height: 1.55;
+      }
+
+      .control-row {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        gap: 12px;
+        align-items: end;
+      }
+
+      button {
+        border: 0;
+        border-radius: 8px;
+        padding: 13px 18px;
+        background: #2563eb;
+        color: #fff;
+        font: inherit;
+        font-weight: 800;
+        cursor: pointer;
+      }
+
+      button:focus-visible,
+      input:focus-visible,
+      textarea:focus-visible,
+      select:focus-visible {
+        outline: 3px solid rgba(37, 99, 235, 0.22);
+        outline-offset: 2px;
+      }
+
+      .result-body {
+        display: grid;
+        gap: 14px;
+        padding: 20px;
+      }
+
+      .summary-card {
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        padding: 15px;
+        background: #f8fafc;
+      }
+
+      .summary-card strong {
+        display: block;
+        margin-bottom: 8px;
+        color: #0f766e;
+        font-size: 13px;
+      }
+
+      .summary-card ul {
+        margin: 0;
+        padding-left: 19px;
+        color: #475569;
+        line-height: 1.6;
+      }
+
+      .fallback-note {
+        display: none;
+        border: 1px solid #bbf7d0;
+        border-radius: 8px;
+        padding: 13px 14px;
+        background: #f0fdf4;
+        color: #166534;
+        font-size: 13px;
+        line-height: 1.55;
+      }
+
+      .fallback-note.is-visible {
+        display: block;
+      }
+
+      @media (max-width: 860px) {
+        .fallback-header,
+        .control-row {
+          align-items: stretch;
+          grid-template-columns: 1fr;
+          flex-direction: column;
+        }
+
+        .workspace {
+          grid-template-columns: 1fr;
+        }
+
+        .status-pill {
+          width: 100%;
+        }
+      }
+    </style>
     <script type="application/ld+json">
       {
         "@context": "https://schema.org",
@@ -47,13 +266,97 @@
   </head>
   <body>
     <div id="root">
-      <main>
-        <h1>스마트 회의 요약</h1>
-        <p>
-          회의 대본과 메모를 AI로 분석해 핵심 요약, 주요 논의 내용, 결정 사항, 해야 할 일을 정리하는 웹 서비스입니다.
-        </p>
+      <main class="fallback-shell" aria-labelledby="page-title">
+        <header class="fallback-header">
+          <div class="brand" aria-label="스마트 회의 요약">
+            <span class="brand-mark">S</span>
+            <span>스마트 회의 요약</span>
+          </div>
+          <span class="status-pill">GitHub Pages 공개 배포 완료</span>
+        </header>
+
+        <section class="panel" style="margin-bottom: 18px;">
+          <div class="panel-header">
+            <h1 id="page-title">AI 회의록 정리 도구</h1>
+            <p class="lead">
+              회의 대본, 메모, 슬랙 논의 내용을 바탕으로 핵심 요약, 주요 논의 내용, 결정 사항, 해야 할 일을 정리합니다.
+            </p>
+          </div>
+        </section>
+
+        <section class="workspace" aria-label="회의 요약 작업 공간">
+          <section class="panel" aria-labelledby="input-title">
+            <div class="panel-header">
+              <h2 id="input-title">회의 내용 입력</h2>
+            </div>
+            <form class="form-grid" id="fallback-form">
+              <label>
+                회의 제목
+                <input type="text" name="title" placeholder="예: 주간 운영 회의" />
+              </label>
+              <label>
+                참석자
+                <input type="text" name="participants" placeholder="예: 김대리, 이과장, 박팀장" />
+              </label>
+              <label>
+                회의 내용
+                <textarea name="content" placeholder="회의 내용을 여기에 붙여넣으세요."></textarea>
+              </label>
+              <div class="control-row">
+                <label>
+                  요약 스타일
+                  <select name="length">
+                    <option>보통</option>
+                    <option>짧게</option>
+                    <option>자세히</option>
+                  </select>
+                </label>
+                <button type="submit">요약 준비</button>
+              </div>
+              <p class="fallback-note" id="fallback-note">
+                공개 Pages 화면은 검색 노출용 정적 페이지입니다. AI 요약 기능은 GEMINI_API_KEY가 연결된 Node.js 서버 배포에서 작동합니다.
+              </p>
+            </form>
+          </section>
+
+          <aside class="panel" aria-labelledby="result-title">
+            <div class="panel-header">
+              <h2 id="result-title">정리 결과 예시</h2>
+            </div>
+            <div class="result-body">
+              <div class="summary-card">
+                <strong>한 줄 요약</strong>
+                <p>회의의 핵심 결론과 다음 실행 항목을 한 문장으로 정리합니다.</p>
+              </div>
+              <div class="summary-card">
+                <strong>주요 논의</strong>
+                <ul>
+                  <li>핵심 쟁점과 근거를 항목별로 구분합니다.</li>
+                  <li>결정 사항과 보류 사항을 분리합니다.</li>
+                  <li>담당자와 후속 작업을 구조화합니다.</li>
+                </ul>
+              </div>
+              <div class="summary-card">
+                <strong>공유용 회의록</strong>
+                <p>메일, 슬랙, 사내 보고에 바로 붙여넣을 수 있는 문장으로 정리합니다.</p>
+              </div>
+            </div>
+          </aside>
+        </section>
       </main>
     </div>
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        var form = document.getElementById("fallback-form");
+        var note = document.getElementById("fallback-note");
+        if (!form || !note) return;
+
+        form.addEventListener("submit", function (event) {
+          event.preventDefault();
+          note.classList.add("is-visible");
+        });
+      });
+    </script>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
